@@ -21,19 +21,15 @@
  * Source for this application is maintained at https://github.com/WebGoat/WebGoat, a repository for free software projects.
  */
 
-package org.owasp.webgoat.hijacksession.cas;
+package org.owasp.webgoat.hijacksession;
 
-import java.security.Principal;
+/***
+*
+* @author Angel Olle Blazquez
+*
+*/
 
-/**
- *
- * @author Angel Olle Blazquez
- *
- */
 
-@FunctionalInterface
-public interface AuthenticationProvider<T extends Principal> {
-
-    T authenticate(T t);
+public class HijackSessionAuthenticationProviderTest {
 
 }

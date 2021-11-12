@@ -1,12 +1,39 @@
+/*
+ * This file is part of WebGoat, an Open Web Application Security Project utility. For details, please see http://www.owasp.org/
+ *
+ * Copyright (c) 2002 - 2021 Bruce Mayhew
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * Getting Source
+ * ==============
+ *
+ * Source for this application is maintained at https://github.com/WebGoat/WebGoat, a repository for free software projects.
+ */
+
 package org.owasp.webgoat.hijacksession.cas;
 
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoublePredicate;
 import java.util.function.Supplier;
 
-import org.joda.time.Instant;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 /**
  *
@@ -15,16 +42,20 @@ import org.joda.time.Instant;
  */
 
 // weak id value and mechanism
+
+@ApplicationScope
+@Component
 public class HijackSessionAuthenticationProvider implements AuthenticationProvider<Authentication> {
 
     private Queue<String> sessions = new LinkedList<>();
     private static long id = new Random().nextLong();
-    private static final int MAX = 150;
+    private static final int MAX = 50;
 
-    protected static final DoublePredicate PROBABILITY_DOUBLE_PREDICATE = pr -> pr < 0.75;
-    protected static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> Authentication
+    private static final DoublePredicate PROBABILITY_DOUBLE_PREDICATE = pr -> pr < 0.75;
+    private static final Supplier<String> GENERATE_SESSION_ID = () -> ++id + "-" + Instant.now();
+    public static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> Authentication
         .builder()
-        .credentials(generateSessionId())
+        .id(GENERATE_SESSION_ID.get())
         .build();
 
     @Override
@@ -34,25 +65,26 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
             return AUTHENTICATION_SUPPLIER.get();
         }
 
-        if (sessions.contains(authentication.getCredentials())) {
-            authentication.authenticated = true;
+        if (StringUtils.isNotEmpty(authentication.getId()) && sessions.contains(authentication.getId())) {
+            authentication.setAuthenticated(true);
         }
 
         return authentication;
     }
 
     private void authorizedUserAutoLogin() {
-
+        if (!PROBABILITY_DOUBLE_PREDICATE.test(ThreadLocalRandom.current().nextDouble())) {
+            Authentication authentication = AUTHENTICATION_SUPPLIER.get();
+            authentication.setAuthenticated(true);
+            addSession(authentication.getId());
+        }
     }
 
-    private static String generateSessionId() {
-        return ++id + "-" + Instant.now();
-    }
-
-    private void cleanOldSessions() {
-        if (sessions.size() > MAX) {
+    private boolean addSession(String sessionId) {
+        if (sessions.size() >= MAX) {
             sessions.remove();
         }
+        return sessions.add(sessionId);
     }
 
 }
