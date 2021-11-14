@@ -48,11 +48,11 @@ import org.springframework.web.context.annotation.ApplicationScope;
 public class HijackSessionAuthenticationProvider implements AuthenticationProvider<Authentication> {
 
     private Queue<String> sessions = new LinkedList<>();
-    private static long id = new Random().nextLong();
+    private static long id = new Random().nextLong() & Long.MAX_VALUE;
     private static final int MAX = 50;
 
     private static final DoublePredicate PROBABILITY_DOUBLE_PREDICATE = pr -> pr < 0.75;
-    private static final Supplier<String> GENERATE_SESSION_ID = () -> ++id + "-" + Instant.now();
+    private static final Supplier<String> GENERATE_SESSION_ID = () -> ++id + "-" + Instant.now().toEpochMilli();
     public static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> Authentication
         .builder()
         .id(GENERATE_SESSION_ID.get())
@@ -61,13 +61,19 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
     @Override
     public Authentication authenticate(Authentication authentication) {
         if (authentication == null) {
-            authorizedUserAutoLogin();
             return AUTHENTICATION_SUPPLIER.get();
         }
 
         if (StringUtils.isNotEmpty(authentication.getId()) && sessions.contains(authentication.getId())) {
             authentication.setAuthenticated(true);
+            return authentication;
         }
+
+        if (StringUtils.isEmpty(authentication.getId())) {
+            authentication.setId(GENERATE_SESSION_ID.get());
+        }
+
+        authorizedUserAutoLogin();
 
         return authentication;
     }

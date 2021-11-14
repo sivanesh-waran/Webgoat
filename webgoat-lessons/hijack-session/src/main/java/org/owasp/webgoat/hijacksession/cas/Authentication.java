@@ -27,6 +27,7 @@ import java.security.Principal;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  *
@@ -35,6 +36,7 @@ import lombok.Getter;
  */
 
 @Getter
+@ToString
 public class Authentication implements Principal {
 
     private boolean authenticated = false;
@@ -53,9 +55,13 @@ public class Authentication implements Principal {
     public String getName() {
         return name;
     }
-    
+
     protected void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
+    }
+
+    protected void setId(String id) {
+        this.id = id;
     }
 
 }

@@ -22,10 +22,12 @@
 
 package org.owasp.webgoat.hijacksession;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
+import org.owasp.webgoat.assignments.AssignmentHints;
 import org.owasp.webgoat.assignments.AttackResult;
 import org.owasp.webgoat.hijacksession.cas.Authentication;
 import org.owasp.webgoat.hijacksession.cas.HijackSessionAuthenticationProvider;
@@ -43,6 +45,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController
+@AssignmentHints({
+    "hijacksession.hints.1"
+})
 public class HijackSessionAssignment extends AssignmentEndpoint {
 
     private static final String COOKIE_NAME = "hijack_cookie";
@@ -61,14 +66,23 @@ public class HijackSessionAssignment extends AssignmentEndpoint {
         Authentication authentication;
         if (StringUtils.isEmpty(cookieValue)) {
             authentication = provider.authenticate(Authentication.builder().name(username).credentials(password).build());
+            setCookie(response, authentication.getId());
         } else {
             authentication = provider.authenticate(Authentication.builder().id(cookieValue).build());
         }
-        
-        if(authentication.isAuthenticated()) {
+
+        if (authentication.isAuthenticated()) {
             return success(this).build();
         }
+
         return failed(this).build();
+    }
+
+    private void setCookie(HttpServletResponse response, String cookieValue) {
+        Cookie cookie = new Cookie(COOKIE_NAME, cookieValue);
+        cookie.setPath("/WebGoat");
+        cookie.setSecure(true);
+        response.addCookie(cookie);
     }
 
 }
