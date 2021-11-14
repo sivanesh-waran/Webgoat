@@ -46,7 +46,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AssignmentHints({
-    "hijacksession.hints.1"
+    "hijacksession.hints.1",
+    "hijacksession.hints.2",
+    "hijacksession.hints.3",
+    "hijacksession.hints.4",
+    "hijacksession.hints.5"
 })
 public class HijackSessionAssignment extends AssignmentEndpoint {
 
