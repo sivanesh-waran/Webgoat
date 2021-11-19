@@ -38,4 +38,5 @@ public class AuthBypass extends Lesson {
     public String getTitle() {
         return "auth-bypass.title";
     }
+    /*Added comments*/
 }
