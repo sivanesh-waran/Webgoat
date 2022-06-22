@@ -12,4 +12,4 @@ steps:
     projectName: 'WebGoatTest'
     branchName: '$(Build.SourceBranchName)'
     tenantName: 'chandra-ast-demo'
-    additionalParams: '--file-source -s "https://github.com/CMaheshBL/WebGoat/tree/develop/webgoat-server/src/main/java/org/owasp/webgoat"'
+    additionalParams: '--file-source "https://github.com/CMaheshBL/WebGoat/tree/develop/webgoat-server/src/main/java/org/owasp/webgoat"   --debug'
