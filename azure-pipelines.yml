@@ -4,8 +4,6 @@
 # https://aka.ms/yaml
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 - task: Checkmarx AST@2
   inputs:
     CheckmarxService: 'ASTConnection'
