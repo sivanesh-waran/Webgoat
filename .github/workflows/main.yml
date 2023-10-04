@@ -14,8 +14,20 @@ jobs:
       - name: Checkmarx One CLI Action
         uses: checkmarx/ast-github-action@main #Github Action version
         with:
-          project_name: Webgoat.Java
           cx_tenant: chandra-ast-demo
           base_uri: https://eu.ast.checkmarx.net
           cx_client_id: ${{ secrets.CX_CLIENT_ID }}
           cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
+          project_name: Webgoat.Java
+          # Branch name
+          branch: ${{ github.head_ref || github.ref }}
+          # GitHub API Token
+          github_token: ${{ github.token }}
+          # Additional parameters for AST scan
+          # additional_params: # optional, default is 
+          # Repository name for PR decoration
+          repo_name: ${{ github.event.repository.name }}
+          # Organization name to create the Pr comment
+          namespace: ${{ github.repository_owner }}
+          # Pr Number of the pull request that needs the decoration
+          pr_number: ${{ github.event.number }}
