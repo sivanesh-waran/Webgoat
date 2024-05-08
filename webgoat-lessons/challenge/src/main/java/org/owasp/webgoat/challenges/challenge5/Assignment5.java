@@ -53,9 +53,7 @@ public class Assignment5 extends AssignmentEndpoint {
         if (!StringUtils.hasText(username_login) || !StringUtils.hasText(password_login)) {
             return failed(this).feedback("required4").build();
         }
-
-        sanitizeVariable(username_login,password_login);    
-        
+      
         if (!"Larry".equals(username_login)) {
             return failed(this).feedback("user.not.larry").feedbackArgs(username_login).build();
         }
@@ -71,8 +69,5 @@ public class Assignment5 extends AssignmentEndpoint {
         }
     }
 
-    public void sanitizeVariable(String username_login, String password_login){
-
-    }
 }
 
